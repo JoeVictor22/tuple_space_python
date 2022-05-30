@@ -7,52 +7,18 @@ if __name__ == "__main__":
         try:
             p._pyroBind()
 
-            choice = input(
-                "Digite: \n1 (para criar um cliente)\n2 (para criar um sensor)\n"
-            )
 
-            if choice == "1":
-                from app.client import Client
 
-                print("Criando Cliente")
-                name = input("Digite o nome (vazio para gerar aleatorio)\n")
+            from app.client import Client
 
-                if name == "":
-                    name = None
+            print("Criando Cliente")
+            # name = input("Digite o seu nome (vazio para gerar aleatorio)\n")
 
-                cliente = Client(name=name)
-                from app.client_interface import start
+            # if name == "":
+            #     name = None
 
-                start(cliente)
-
-            elif choice == "2":
-                from app.sensor import Sensor
-
-                print("Criando Sensor")
-                name = input("Digite o nome (vazio para gerar aleatorio)\n")
-                topic = input("Digite o tópico (vazio para gerar aleatorio)\n")
-                monitor = input(
-                    "Escolha o parâmetro (digite o número) \n"
-                    "1 - Temperatura\n"
-                    "2 - Umidade\n"
-                    "3 - Velocidade\n"
-                    "(vazio para gerar aleatorio)\n"
-                )
-
-                if name == "":
-                    name = None
-                if topic == "":
-                    topic = None
-                if monitor == "" or monitor.isdigit():
-                    monitor = None
-
-                sensor = Sensor(name=name, topic_name=topic, monitor=monitor)
-                from app.sensor_interface import start
-
-                start(sensor)
-
-            else:
-                print("Opção invalida")
+            from app.chat_interface import Interface
+            a = Interface().start()
 
         except Pyro4.errors.CommunicationError as eee:
             from app.server import start_server

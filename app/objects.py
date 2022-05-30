@@ -20,6 +20,6 @@ class TupleObject:
 
     def is_equal_to(self, tupla):
         for key in self.tuple_space_fields:
-            if getattr(self, tupla) and getattr(self, key) != getattr(self, tupla):
+            if getattr(tupla, key) and getattr(self, key) != getattr(tupla, key):
                 return False
         return True
