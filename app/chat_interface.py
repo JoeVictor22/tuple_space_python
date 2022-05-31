@@ -1,10 +1,10 @@
 import random
 import tkinter as tk
-from functools import partial
 from tkinter import ttk
 
 import Pyro4
 
+from app.client import Client
 from config import PYRO_URL
 
 
@@ -67,6 +67,10 @@ class Interface:
     text_width=50
     chatrooms = []
 
+    client = None
+
+    def __init__(self, name):
+        self.client = Client(name=name)
 
     def create_message(self, messages):
         final_txt = ""
@@ -75,10 +79,13 @@ class Interface:
             final_txt += f"{message}\n"
         return final_txt
 
-    def set_input_text(self):
+    def send_message(self):
         input_value = self.input["input"]["input"].get()
-        print(input_value)
-        self.update_input_test(input_value)
+        print(f"enviando: {input_value} - {self.get_room()}")
+        self.client.send_message(input_value,room=self.get_room())
+
+    def get_room(self):
+        return self.input["select"]["value"]
 
     def update_input_test(self, value):
         self.input["chat"]["input"].delete(1.0, "end")
@@ -89,7 +96,7 @@ class Interface:
         self.input["input"]["input"] = tk.Entry(self.master, width=self.text_width)
         self.input["input"]["input"].grid(row=self.row, column=0, columnspan=3)
         # button
-        self.input["input"]["button"] = tk.Button(self.master, text="Enviar", command=self.set_input_text, bd=3)
+        self.input["input"]["button"] = tk.Button(self.master, text="Enviar", command=self.send_message, bd=3)
         self.input["input"]["button"].grid(row=self.row, column=3, columnspan=1)
         self.row +=1
         # label
@@ -132,8 +139,9 @@ class Interface:
         self.input["select"]["button"].grid(row=self.row, column=2, columnspan=1)
         self.row +=1
 
+
     def update_chatrooms(self):
-        self.chatrooms = [random.randint(0,12) for _ in range(0, random.randint(3,5))]
+        self.chatrooms = list(self.client.rooms)
 
         menu = self.input["select"]["input"]["menu"]
         variable = self.input["select"]["value"]
@@ -146,7 +154,6 @@ class Interface:
         for string in self.chatrooms:
             menu.add_command(label=string,
                              command=lambda value=string: variable.set(value))
-
 
 
     def popup_bonus(self):
@@ -170,6 +177,8 @@ class Interface:
 
     def create_room(self):
         print(f"criadno nova sala {self.input['room']['input'].get()}")
+        room = self.input['room']['input'].get()
+        self.client.send_message("Criando nova sala", room)
         self.popup.destroy()
         self.popup = None
 
@@ -180,8 +189,13 @@ class Interface:
         self.create_people()
         self.create_dropdown()
         # do loop here
+
         while True:
             self.master.update()
+            self.client.update()
+            self.update_input_test("\n".join(self.client.messages))
+
+
 
     def select_choice(self):
         pass
@@ -195,7 +209,7 @@ class Interface:
         choose = []
         col = 0
 
-        for value in ["joao", "jose", "jose maria da silva souza","joao", "jose","joao", "jose","joao", "jose","joao", "jose","joao", "jose","joao", "jose","joao", "jose","joao", "jose","joao", "jose","joao", "jose",]:
+        for value in self.client.get_participants():
             var = tk.BooleanVar()
             choose.append(var)
             c = tk.Checkbutton(
