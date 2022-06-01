@@ -6,7 +6,7 @@ import Pyro4
 
 from app.client import Client
 from config import PYRO_URL
-
+#a
 
 class Interface:
     master = tk.Tk()

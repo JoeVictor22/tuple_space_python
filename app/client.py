@@ -3,13 +3,14 @@ from datetime import datetime
 from typing import List, Dict, Set
 
 import Pyro4
+Pyro4.config.SERIALIZER = 'pickle'
 
 from config import PYRO_URL
 
 import time
 
 from app.tuple_object import TupleObject
-
+#a
 
 class Client:
     broker = None

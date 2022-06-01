@@ -1,1 +1,1 @@
-PYRO_URL = "PYRO:Server@0.0.0.0:9090"
+PYRO_URL = "PYRO:Tuplas@0.0.0.0:9090"
