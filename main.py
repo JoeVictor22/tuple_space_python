@@ -1,10 +1,4 @@
-import dataclasses
-
 import Pyro4
-
-from app.tuple_object import TupleObject
-
-Pyro4.util.SerializerBase.register_class_to_dict(TupleObject, dataclasses.asdict)
 
 from config import PYRO_URL
 

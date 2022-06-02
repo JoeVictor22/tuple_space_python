@@ -1,6 +1,5 @@
 import random
 from datetime import datetime
-from typing import List, Dict, Set
 
 import Pyro4
 
@@ -9,7 +8,6 @@ from config import PYRO_URL
 import time
 
 from app.objects import TupleObject
-#a
 
 class Client:
     server = None

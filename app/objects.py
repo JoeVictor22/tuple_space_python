@@ -3,12 +3,10 @@ import pickle
 from dataclasses import dataclass
 from uuid import uuid1 as UUID
 
-from typing import List
 
 
 @dataclass
 class TupleObject:
-    # unique_id: UUID
     uuid: UUID = None
     dest: str = None
     who: str = None
