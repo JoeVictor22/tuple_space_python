@@ -9,6 +9,7 @@ import time
 
 from app.objects import TupleObject
 
+
 class Client:
     server = None
 
@@ -24,7 +25,7 @@ class Client:
 
     messages_id = []
 
-    def __init__(self, room='default', name=None):
+    def __init__(self, room="default", name=None):
         if name is None:
             name = f"cliente_{random.randint(1000, 9999)}"
 
@@ -65,11 +66,15 @@ class Client:
 
     def add_messages_to_buffer(self, messages):
         msgs = map(TupleObject.pickle_deserialize, messages)
-        added_msgs = [self._add_new_message(msg) for msg in msgs if not self._exists_in_client(msg)]
+        added_msgs = [
+            self._add_new_message(msg)
+            for msg in msgs
+            if not self._exists_in_client(msg)
+        ]
 
     @staticmethod
     def format_message(tuple):
 
-        time = datetime.fromtimestamp(tuple['sent_at']).strftime("%H:%M:%S")
-        target = tuple['dest'] or tuple['chat_room']
+        time = datetime.fromtimestamp(tuple["sent_at"]).strftime("%H:%M:%S")
+        target = tuple["dest"] or tuple["chat_room"]
         return f"[{time}]{tuple['who']}@{target} : {tuple['message']}"

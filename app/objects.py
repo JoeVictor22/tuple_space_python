@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from uuid import uuid1 as UUID
 
 
-
 @dataclass
 class TupleObject:
     uuid: UUID = None

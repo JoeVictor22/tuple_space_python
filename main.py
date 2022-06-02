@@ -8,8 +8,6 @@ if __name__ == "__main__":
         try:
             p._pyroBind()
 
-
-
             from app.client import Client
 
             print("Criando Cliente")
@@ -19,6 +17,7 @@ if __name__ == "__main__":
                 name = "joao"
 
             from app.chat_interface import Interface
+
             a = Interface(name=name).start()
 
         except Pyro4.errors.CommunicationError as eee:
