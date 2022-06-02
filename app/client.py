@@ -3,27 +3,28 @@ from datetime import datetime
 from typing import List, Dict, Set
 
 import Pyro4
-Pyro4.config.SERIALIZER = 'pickle'
 
 from config import PYRO_URL
 
 import time
 
-from app.tuple_object import TupleObject
+from app.objects import TupleObject
 #a
 
 class Client:
-    broker = None
+    server = None
 
     name = None
     topics = None
     broker_topics = None
 
-    buffer: List[Dict] = []
-    rooms: Set[str] = set()
-    messages: List[str] = []
+    buffer = []
+    rooms = set()
+    messages = []
 
     counter = None
+
+    messages_id = []
 
     def __init__(self, room='default', name=None):
         if name is None:
@@ -37,54 +38,40 @@ class Client:
 
     def update(self):
         now = time.time()
-        if now - self.counter < 0.16:
+        if now - self.counter < 3:
             return
 
-        # Fetch room messages
-        tuples = self.fetch_new_tuples(TupleObject(chat_room=self.room))
-        for tuple in tuples:
-            self.register_room(tuple)
-            self.register_message(tuple)
-
-        # Fetch private messages
-        tuples = self.fetch_new_tuples(TupleObject(dest=self.name))
-        for tuple in tuples:
-            self.register_message(tuple)
-
-    def register_room(self, tuple):
-        if tuple['chat_room']:
-            self.rooms.add(tuple['chat_room'])
-
-    def register_message(self, tuple):
-        self.messages.append(Client.format_message(tuple))
-
-    def send_message(self, message, room=None, target=None):
-        self.server.write(TupleObject(who=self.name,message=message, chat_room=room, dest=target))
+        msgs_on_server = self.server.scan(TupleObject(chat_room=self.room).pickled())
+        private_msgs = self.server.scan(TupleObject(dest=self.name).pickled())
+        global_msgs = self.server.scan(TupleObject().pickled())
+        self.add_messages_to_buffer(msgs_on_server)
+        self.add_messages_to_buffer(private_msgs)
+        self.add_messages_to_buffer(global_msgs)
 
     def get_participants(self):
-        tuples = self.server.scan(TupleObject(chat_room=self.room))
-        participants = set()
+        return ["jose", "maria"]
 
-        for tuple in tuples:
-            participants.add(tuple['who'])
-        return list(participants)
+    def _exists_in_client(self, message):
+        if message in self.messages_id:
+            return True
+        return False
 
-    def fetch_new_tuples(self, tuple=TupleObject()):
-        tuples = self.server.scan(tuple)
-        if len(tuples) == 0:
-            return []
+    def _add_new_message(self, message):
+        if not message.uuid:
+            return
 
-        tuples: List[dict] = sorted(tuples, key=lambda x: x['sent_at'])
-        tuples = list(filter(lambda x: x['sent_at'] > self.last_seen, tuples))
+        self.messages.append(message)
+        self.messages_id.append(message.uuid)
 
-        if len(tuples) == 0:
-            return []
-        self.last_seen = tuples[-1]['sent_at']
-        return tuples
+        return message
+
+    def add_messages_to_buffer(self, messages):
+        msgs = map(TupleObject.pickle_deserialize, messages)
+        added_msgs = [self._add_new_message(msg) for msg in msgs if not self._exists_in_client(msg)]
 
     @staticmethod
     def format_message(tuple):
 
         time = datetime.fromtimestamp(tuple['sent_at']).strftime("%H:%M:%S")
         target = tuple['dest'] or tuple['chat_room']
-        return f"[{time}]{tuple['who']}@{target} :  {tuple['message']}"
+        return f"[{time}]{tuple['who']}@{target} : {tuple['message']}"

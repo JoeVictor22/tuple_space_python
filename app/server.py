@@ -1,7 +1,7 @@
-import pickle
 from copy import deepcopy
+import uuid
+
 import Pyro4
-import base64
 from pprint import pprint
 from app.objects import TupleObject
 from typing import List
@@ -19,6 +19,7 @@ class Servidor(object):
         if not isinstance(tupla, TupleObject):
             return
 
+        tupla.uuid = uuid.uuid4()
         self.tuple_space.append(tupla)
 
         pprint(f"[write]: {tupla}")
@@ -77,7 +78,7 @@ def start_server():
         },
         host="0.0.0.0",
         port=9090,
-        ns=False,
         verbose=True,
+        ns=False,
     )
-    pprint(f"[Server started]")
+    pprint(f"[starting server]")

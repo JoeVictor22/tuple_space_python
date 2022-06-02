@@ -9,12 +9,13 @@ from typing import List
 @dataclass
 class TupleObject:
     # unique_id: UUID
+    uuid: UUID = None
     dest: str = None
     who: str = None
     chat_room: str = None
     message: str = None
 
-    tuple_space_fields = ["chat_room", "dest", "who"]
+    fields = ["chat_room", "dest", "who"]
 
     @staticmethod
     def pickle_deserialize(obj):
@@ -25,8 +26,11 @@ class TupleObject:
     def pickle_serialize(obj):
         return pickle.dumps(obj)
 
+    def pickled(self):
+        return TupleObject.pickle_serialize(self)
+
     def is_equal_to(self, tupla):
-        for key in self.tuple_space_fields:
+        for key in self.fields:
             if getattr(tupla, key) and getattr(self, key) != getattr(tupla, key):
                 return False
         return True
