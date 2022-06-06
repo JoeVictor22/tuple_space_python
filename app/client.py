@@ -1,6 +1,7 @@
 import random
 from datetime import datetime
 from pprint import pprint
+import uuid
 
 import Pyro4
 
@@ -62,6 +63,18 @@ class Client:
 
         return people
 
+    def get_participants_from_room(self, room):
+
+        people = set()
+        msgs = self.server.scan(TupleObject(chat_room=room).pickled())
+
+        for msg in msgs:
+            msg = TupleObject.pickle_deserialize(msg)
+            people.add(msg.who)
+
+        return people
+
+
     def get_rooms(self):
         rooms = set()
         msgs = self.server.scan(TupleObject().pickled())
@@ -73,9 +86,18 @@ class Client:
         return rooms
 
     def change_room(self, room):
+        # if self.name in self.get_participants_from_room(room):
+        #     pprint(self.get_participants_from_room(room))
+        #     msg = TupleObject(message=f"[sistema] Já existe um usuário com o nome {self.name} nesta sala")
+        #     msg.uuid = uuid.uuid4()
+        #     self._add_new_message(msg)
+        #     return False
+
         if room in self.get_rooms():
             self.room = room
             self.send_message(message=f"{self.name} entrou na sala", room=room)
+            return True
+        return False
 
     def send_message(self, message, dest=None, room=None):
         new_tuple = TupleObject(

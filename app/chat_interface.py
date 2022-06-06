@@ -96,6 +96,7 @@ class Interface:
 
     text_width = 50
     chatrooms = []
+    people = []
     private = None  # private target
 
     client = None  # client object
@@ -195,10 +196,17 @@ class Interface:
             self.master,
             self.input["select_people"]["value"],
             "nenhuma",
-            *self.client.get_participants(),
+            *self.people,
         )
         self.input["select_people"]["input"].grid(row=self.row, column=1, columnspan=1)
+
+        # button
+        self.input["select_people"]["button"] = tk.Button(
+            self.master, text="Atualizar participantes", command=self.update_people, bd=3
+        )
+        self.input["select_people"]["button"].grid(row=self.row, column=2, columnspan=1)
         self.row += 1
+
 
         self.input["create_room"]["button"] = tk.Button(
             self.master, text="Criar nova sala", command=self.create_room_popoup, bd=3
@@ -254,10 +262,16 @@ class Interface:
         b.grid(row=4, column=0)
 
     def send_private_message(self):
-        self.private = self.input["private_msg"]["value"].get()
-        self.input["input"]["value"].set(self.input["private_msg"]["value"].get())
-        self.send_message()
+        destino = self.input["private_msg"]["value"].get()
+        msg = self.input["private_msg"]["value"].get()
         self.private = None
+
+        print(f"destino:{destino} - msg:{msg}")
+
+        self.client.send_message(
+            msg, room=self.get_room(), dest=destino
+        )
+
         self.popup_people.destroy()
         self.popup_people = None
 
@@ -284,15 +298,33 @@ class Interface:
         b = ttk.Button(self.popup_room, text="Criar", command=self.create_room)
         b.grid(row=2, column=0)
 
+    def update_people(self):
+        self.people = list(self.client.get_participants())
+
+        sala = self.input["select_people"]["value"].get()
+
+        menu = self.input["select_people"]["input"]["menu"]
+        variable = self.input["select_people"]["value"]
+        menu.delete(0, "end")
+        variable.set("nenhuma")
+
+        menu.add_command(
+            label="nenhuma", command=lambda value="nenhuma": variable.set(value)
+        )
+
+        for string in self.people:
+            menu.add_command(
+                label=string, command=lambda value=string: variable.set(value)
+            )
+
     def update_chatrooms(self):
 
         self.chatrooms = list(self.client.get_rooms())
 
         sala = self.input["select_room"]["value"].get()
 
-        if sala in self.chatrooms:
+        if sala in self.chatrooms and self.client.change_room(sala):
             self.input["select"]["value"].set(sala)
-            self.client.change_room(sala)
 
         menu = self.input["select_room"]["input"]["menu"]
         variable = self.input["select_room"]["value"]
