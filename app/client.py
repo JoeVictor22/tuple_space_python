@@ -18,7 +18,7 @@ class Client:
     name = None
 
     buffer = []
-    rooms = set()  # TODO unused?
+    rooms = set()
     messages = []
 
     room = None
@@ -28,10 +28,6 @@ class Client:
     messages_id = []
 
     def __init__(self, room="default", name=None):
-        if name is None:
-            name = f"cliente_{random.randint(1000, 9999)}"
-
-        self.last_seen = 0
         self.name = name
         self.room = room
         self.server = Pyro4.core.Proxy(PYRO_URL)
@@ -43,8 +39,12 @@ class Client:
             return
 
         if self.room:
-            msgs_on_server = self.server.scan(TupleObject(chat_room=self.room).pickled())
-            private_msgs = self.server.scan(TupleObject(chat_room=self.room, dest=self.name).pickled())
+            msgs_on_server = self.server.scan(
+                TupleObject(chat_room=self.room).pickled()
+            )
+            private_msgs = self.server.scan(
+                TupleObject(chat_room=self.room, dest=self.name).pickled()
+            )
             # global_msgs = self.server.scan(TupleObject().pickled())
             self.add_messages_to_buffer(msgs_on_server)
             self.add_messages_to_buffer(private_msgs)
@@ -74,7 +74,6 @@ class Client:
 
         return people
 
-
     def get_rooms(self):
         rooms = set()
         msgs = self.server.scan(TupleObject().pickled())
@@ -86,12 +85,13 @@ class Client:
         return rooms
 
     def change_room(self, room):
-        # if self.name in self.get_participants_from_room(room):
-        #     pprint(self.get_participants_from_room(room))
-        #     msg = TupleObject(message=f"[sistema] Já existe um usuário com o nome {self.name} nesta sala")
-        #     msg.uuid = uuid.uuid4()
-        #     self._add_new_message(msg)
-        #     return False
+        if self.name in self.get_participants_from_room(room):
+            msg = TupleObject(
+                message=f"[sistema] Já existe um usuário com o nome {self.name} nesta sala"
+            )
+            msg.uuid = uuid.uuid4()
+            self._add_new_message(msg)
+            return False
 
         if room in self.get_rooms():
             self.room = room
@@ -106,9 +106,7 @@ class Client:
         self._send_to_server(new_tuple)
 
     def create_room(self, room):
-        new_tuple = TupleObject(
-            message="Criando nova sala", who=self.name, chat_room=room
-        )
+        new_tuple = TupleObject(message="Criando nova sala", chat_room=room)
         self._send_to_server(new_tuple)
 
     def _send_to_server(self, tuple):
@@ -135,10 +133,3 @@ class Client:
             for msg in msgs
             if not self._exists_in_client(msg)
         ]
-
-    @staticmethod
-    def format_message(tuple):
-
-        time = datetime.fromtimestamp(tuple["sent_at"]).strftime("%H:%M:%S")
-        target = tuple["dest"] or tuple["chat_room"]
-        return f"[{time}]{tuple['who']}@{target} : {tuple['message']}"

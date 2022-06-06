@@ -145,7 +145,6 @@ class Interface:
         room_label.config(font=("helvetica", 10))
         room_label.grid(row=self.row, column=0, columnspan=1)
 
-
         room_label = tk.Label(self.master, textvariable=self.input["select"]["value"])
         room_label.config(font=("helvetica", 10))
         room_label.grid(row=self.row, column=1, columnspan=2)
@@ -202,11 +201,13 @@ class Interface:
 
         # button
         self.input["select_people"]["button"] = tk.Button(
-            self.master, text="Atualizar participantes", command=self.update_people, bd=3
+            self.master,
+            text="Atualizar participantes",
+            command=self.update_people,
+            bd=3,
         )
         self.input["select_people"]["button"].grid(row=self.row, column=2, columnspan=1)
         self.row += 1
-
 
         self.input["create_room"]["button"] = tk.Button(
             self.master, text="Criar nova sala", command=self.create_room_popoup, bd=3
@@ -268,9 +269,7 @@ class Interface:
 
         print(f"destino:{destino} - msg:{msg}")
 
-        self.client.send_message(
-            msg, room=self.get_room(), dest=destino
-        )
+        self.client.send_message(msg, room=self.get_room(), dest=destino)
 
         self.popup_people.destroy()
         self.popup_people = None
