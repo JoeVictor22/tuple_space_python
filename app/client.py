@@ -14,12 +14,12 @@ class Client:
     server = None
 
     name = None
-    topics = None
-    broker_topics = None
 
     buffer = []
-    rooms = set()
+    rooms = set() # TODO unused?
     messages = []
+
+    room = None
 
     counter = None
 
@@ -48,7 +48,30 @@ class Client:
         self.add_messages_to_buffer(global_msgs)
 
     def get_participants(self):
-        return ["jose", "maria"]
+        people = set()
+        msgs = self.server.scan(TupleObject(chat_room=self.room).pickled())
+
+        for msg in msgs:
+            msg = TupleObject.pickle_deserialize(msg)
+            people.add(msg.who)
+
+        return people
+
+    def change_room(self, room):
+        # TODO, check if room exists
+        self.room = room
+        self.send_message(message=f"{self.name} entrou na sala", room=room)
+
+    def send_message(self, message, dest=None, room=None):
+        new_tuple = TupleObject(who=self.name,message=message, dest=dest,chat_room=room)
+        self._send_to_server(new_tuple)
+
+    def create_room(self, room):
+        new_tuple = TupleObject(message="Criando nova sala", who=self.name, chat_room=room)
+        self._send_to_server(new_tuple)
+
+    def _send_to_server(self, tuple):
+        self.server.write(tuple.pickled())
 
     def _exists_in_client(self, message):
         if message in self.messages_id:

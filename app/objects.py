@@ -12,7 +12,6 @@ class TupleObject:
     chat_room: str = None
     message: str = None
 
-    fields = ["chat_room", "dest", "who"]
 
     @staticmethod
     def pickle_deserialize(obj):
@@ -27,7 +26,9 @@ class TupleObject:
         return TupleObject.pickle_serialize(self)
 
     def is_equal_to(self, tupla):
-        for key in self.fields:
-            if getattr(tupla, key) and getattr(self, key) != getattr(tupla, key):
+        keys = ["chat_room", "dest", "who"]
+
+        for key in keys:
+            if getattr(tupla, key) and getattr(self, key) and getattr(self, key) != getattr(tupla, key):
                 return False
         return True

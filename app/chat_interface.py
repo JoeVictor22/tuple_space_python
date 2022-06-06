@@ -65,8 +65,9 @@ class Interface:
 
     text_width = 50
     chatrooms = []
+    private = None # private target
 
-    client = None
+    client = None # client object
 
     def __init__(self, name):
         self.client = Client(name=name)
@@ -81,10 +82,13 @@ class Interface:
     def send_message(self):
         input_value = self.input["input"]["input"].get()
         print(f"enviando: {input_value} - {self.get_room()}")
-        self.client.send_message(input_value, room=self.get_room())
+        if self.private:
+            self.client.send_message(input_value, room=self.get_room(), dest=self.private)
+        else:
+            self.client.send_message(input_value, room=self.get_room())
 
     def get_room(self):
-        return self.input["select"]["value"]
+        return self.input["select"]["value"].get()
 
     def update_input_test(self, value):
         self.input["chat"]["input"].delete(1.0, "end")
@@ -193,7 +197,7 @@ class Interface:
     def create_room(self):
         print(f"criadno nova sala {self.input['room']['input'].get()}")
         room = self.input["room"]["input"].get()
-        self.client.send_message("Criando nova sala", room)
+        self.client.create_room(room)
         self.popup.destroy()
         self.popup = None
 
