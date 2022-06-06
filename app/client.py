@@ -41,14 +41,18 @@ class Client:
         if now - self.counter < 3:
             return
 
-        msgs_on_server = self.server.scan(TupleObject(chat_room=self.room).pickled())
-        private_msgs = self.server.scan(TupleObject(dest=self.name).pickled())
-        global_msgs = self.server.scan(TupleObject().pickled())
-        self.add_messages_to_buffer(msgs_on_server)
-        self.add_messages_to_buffer(private_msgs)
-        self.add_messages_to_buffer(global_msgs)
+        if self.room:
+            msgs_on_server = self.server.scan(TupleObject(chat_room=self.room).pickled())
+            private_msgs = self.server.scan(TupleObject(chat_room=self.room, dest=self.name).pickled())
+            # global_msgs = self.server.scan(TupleObject().pickled())
+            self.add_messages_to_buffer(msgs_on_server)
+            self.add_messages_to_buffer(private_msgs)
+            # self.add_messages_to_buffer(global_msgs)
 
     def get_participants(self):
+        if not self.room:
+            return []
+
         people = set()
         msgs = self.server.scan(TupleObject(chat_room=self.room).pickled())
 
@@ -69,9 +73,9 @@ class Client:
         return rooms
 
     def change_room(self, room):
-        # TODO, check if room exists
-        self.room = room
-        self.send_message(message=f"{self.name} entrou na sala", room=room)
+        if room in self.get_rooms():
+            self.room = room
+            self.send_message(message=f"{self.name} entrou na sala", room=room)
 
     def send_message(self, message, dest=None, room=None):
         new_tuple = TupleObject(

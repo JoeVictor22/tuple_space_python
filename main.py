@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
             from app.client import Client
 
-            print("Criando Cliente")
+            print("[system] Criando Cliente")
             name = input("Digite o seu nome\n")
 
             if name == "":
@@ -25,5 +25,5 @@ if __name__ == "__main__":
 
             print(eee)
 
-            print("Iniciando servidor")
+            print("[system] Criando servidor")
             start_server()

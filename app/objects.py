@@ -29,8 +29,8 @@ class TupleObject:
 
         for key in keys:
             if (
-                getattr(tupla, key)
-                and getattr(self, key)
+                getattr(self, key)
+                and getattr(tupla, key)
                 and getattr(self, key) != getattr(tupla, key)
             ):
                 return False
