@@ -59,6 +59,16 @@ class Client:
 
         return people
 
+    def get_rooms(self):
+        rooms = set()
+        msgs = self.server.scan(TupleObject().pickled())
+
+        for msg in msgs:
+            msg = TupleObject.pickle_deserialize(msg)
+            rooms.add(msg.chat_room)
+
+        return rooms
+
     def change_room(self, room):
         # TODO, check if room exists
         self.room = room

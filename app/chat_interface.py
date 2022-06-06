@@ -35,6 +35,20 @@ class Interface:
             "button": None,
             "input": None,
         },
+        "select_room": {
+            "value": tk.StringVar(),
+            "message": "Selecione a sala",
+            "label": None,
+            "button": None,
+            "input": None,
+        },
+        "select_people": {
+            "value": tk.StringVar(),
+            "message": "Lista de participantes",
+            "label": None,
+            "button": None,
+            "input": None,
+        },
         "people": {
             "value": tk.StringVar(),
             "message": "Participantes",
@@ -42,15 +56,33 @@ class Interface:
             "button": None,
             "input": None,
         },
-        "room": {
+        "create_room": {
             "value": tk.StringVar(),
             "message": "Criar sala",
             "label": None,
             "button": None,
             "input": None,
         },
+        "private_msg": {
+                           "value": tk.StringVar(),
+                           "message": "Mensagem privada",
+                           "label": None,
+                           "button": None,
+                           "input": None,
+                       },
+                       "private_msg_txt": {
+        "value": tk.StringVar(),
+        "message": "Mensagem privada",
+        "label": None,
+        "button": None,
+        "input": None,
+    },
+
     }
-    popup = None
+    popup_room = None
+    popup_people = None
+
+    logged_room = tk.StringVar()
 
     OPTIONS_ROW = 5
     TEXT_COL = 10
@@ -104,19 +136,27 @@ class Interface:
         )
         self.input["input"]["button"].grid(row=self.row, column=3, columnspan=1)
         self.row += 1
-        # label
-        self.input["input"]["label"] = tk.Label(self.master, text="Enviando para")
-        self.input["input"]["label"].config(font=("helvetica", 10))
-        self.input["input"]["label"].grid(row=self.row, column=0, columnspan=3)
-        self.row += 1
 
     def create_chat(self):
         # label
-        self.input["chat"]["label"] = tk.Label(
-            self.master, text=self.input["chat"]["message"]
+        room_label = tk.Label(
+            self.master, text="SALA ATUAL: "
         )
-        self.input["chat"]["label"].config(font=("helvetica", 10))
-        self.input["chat"]["label"].grid(row=self.row, column=0, columnspan=3)
+        room_label.config(font=("helvetica", 10))
+        room_label.grid(row=self.row, column=0, columnspan=1)
+
+        room_label = tk.Label(
+            self.master, textvariable=self.input["select"]["value"]
+        )
+        room_label.config(font=("helvetica", 10))
+        room_label.grid(row=self.row, column=1, columnspan=2)
+
+        # self.row += 1
+        # self.input["chat"]["label"] = tk.Label(
+        #     self.master, text=self.input["chat"]["message"]
+        # )
+        # self.input["chat"]["label"].config(font=("helvetica", 10))
+        # self.input["chat"]["label"].grid(row=self.row, column=0, columnspan=3)
         # chat
         self.row += 1
         self.input["chat"]["input"] = tk.Text(
@@ -130,37 +170,123 @@ class Interface:
 
     def create_dropdown(self):
         # label
-        self.input["select"]["label"] = tk.Label(
-            self.master, text=self.input["select"]["message"]
+        self.input["select_room"]["label"] = tk.Label(
+            self.master, text=self.input["select_room"]["message"]
         )
-        self.input["select"]["label"].config(font=("helvetica", 10))
-        self.input["select"]["label"].grid(row=self.row, column=0, columnspan=1)
+        self.input["select_room"]["label"].config(font=("helvetica", 10))
+        self.input["select_room"]["label"].grid(row=self.row, column=0, columnspan=1)
 
         # select
-        self.input["select"]["value"].set("nenhuma")
-        self.input["select"]["input"] = tk.OptionMenu(
-            self.master, self.input["select"]["value"], "nenhuma", *self.chatrooms
+        self.input["select_room"]["value"].set("nenhuma")
+        self.input["select_room"]["input"] = tk.OptionMenu(
+            self.master, self.input["select_room"]["value"], "nenhuma", *self.chatrooms
         )
-        self.input["select"]["input"].grid(row=self.row, column=1, columnspan=1)
+        self.input["select_room"]["input"].grid(row=self.row, column=1, columnspan=1)
 
         # button
-        self.input["select"]["button"] = tk.Button(
+        self.input["select_room"]["button"] = tk.Button(
             self.master, text="Atualizar lista", command=self.update_chatrooms, bd=3
         )
-        self.input["select"]["button"].grid(row=self.row, column=2, columnspan=1)
+        self.input["select_room"]["button"].grid(row=self.row, column=2, columnspan=1)
         self.row += 1
 
-        self.input["select"]["button"] = tk.Button(
-            self.master, text="popup", command=self.popup_bonus, bd=3
+        # select participante
+        # label
+        self.input["select_people"]["label"] = tk.Label(
+            self.master, text=self.input["select_people"]["message"]
         )
-        self.input["select"]["button"].grid(row=self.row, column=2, columnspan=1)
+        self.input["select_people"]["label"].config(font=("helvetica", 10))
+        self.input["select_people"]["label"].grid(row=self.row, column=0, columnspan=1)
+
+        self.input["select_people"]["value"].set("nenhuma")
+        self.input["select_people"]["input"] = tk.OptionMenu(
+            self.master, self.input["select_people"]["value"], "nenhuma", *self.client.get_participants()
+        )
+        self.input["select_people"]["input"].grid(row=self.row, column=1, columnspan=1)
         self.row += 1
+
+        self.input["create_room"]["button"] = tk.Button(
+            self.master, text="Criar nova sala", command=self.create_room_popoup, bd=3
+        )
+        self.input["create_room"]["button"].grid(row=self.row, column=2, columnspan=1)
+        self.row += 1
+
+        self.input["private_msg"]["button"] = tk.Button(
+            self.master, text="Enviar msg privada", command=self.private_msg_popup, bd=3
+        )
+        self.input["private_msg"]["button"].grid(row=self.row, column=2, columnspan=1)
+        self.row += 1
+
+
+    def private_msg_popup(self):
+
+        if self.popup_people:
+            return
+
+        self.popup_people = tk.Toplevel()
+        self.popup_people.wm_title("Window")
+
+        self.input["private_msg"]["label"] = tk.Label(
+            self.popup_people, text=self.input["private_msg"]["message"]
+        )
+        self.input["private_msg"]["label"].config(font=("helvetica", 10))
+        self.input["private_msg"]["label"].grid(row=0, column=0, columnspan=2)
+
+        # select participante
+        self.input["private_msg"]["value"].set("nenhuma")
+        self.input["private_msg"]["input"] = tk.OptionMenu(
+            self.popup_people, self.input["private_msg"]["value"], "nenhuma", *self.client.get_participants()
+        )
+        self.input["private_msg"]["input"].grid(row=self.row, column=1, columnspan=1)
+        self.row += 1
+
+        self.input["private_msg_txt"]["label"] = tk.Label(
+            self.popup_people, text=self.input["private_msg_txt"]["message"]
+        )
+        self.input["private_msg_txt_txt"]["label"].config(font=("helvetica", 10))
+        self.input["private_msg_txt"]["label"].grid(row=0, column=0, columnspan=2)
+
+        # input
+        self.input["private_msg_txt"]["input"] = tk.Entry(self.popup_people, width=self.text_width)
+        self.input["private_msg_txt"]["input"].grid(row=1, column=0, columnspan=3)
+
+
+        b = ttk.Button(self.popup_people, text="Enviar", command=self.send_private_message())
+        b.grid(row=2, column=0)
+
+
+    def send_private_message(self):
+        self.private = self.input["private_msg"]["value"].get()
+        self.send_message()
+        self.private = None
+
+    def create_room_popoup(self):
+
+        if self.popup_room:
+            return
+
+        self.popup_room = tk.Toplevel()
+        self.popup_room.wm_title("Window")
+
+        self.input["create_room"]["label"] = tk.Label(
+            self.popup_room, text=self.input["create_room"]["message"]
+        )
+        self.input["create_room"]["label"].config(font=("helvetica", 10))
+        self.input["create_room"]["label"].grid(row=0, column=0, columnspan=2)
+
+        # input
+        self.input["create_room"]["input"] = tk.Entry(self.popup_room, width=self.text_width)
+        self.input["create_room"]["input"].grid(row=1, column=0, columnspan=3)
+
+        b = ttk.Button(self.popup_room, text="Criar", command=self.create_room)
+        b.grid(row=2, column=0)
+
 
     def update_chatrooms(self):
-        self.chatrooms = list(self.client.rooms)
+        self.chatrooms = list(self.client.get_rooms())
 
-        menu = self.input["select"]["input"]["menu"]
-        variable = self.input["select"]["value"]
+        menu = self.input["select_room"]["input"]["menu"]
+        variable = self.input["select_room"]["value"]
         menu.delete(0, "end")
         variable.set("nenhuma")
 
@@ -173,39 +299,20 @@ class Interface:
                 label=string, command=lambda value=string: variable.set(value)
             )
 
-    def popup_bonus(self):
-
-        if self.popup:
-            return
-
-        self.popup = tk.Toplevel()
-        self.popup.wm_title("Window")
-
-        self.input["room"]["label"] = tk.Label(
-            self.popup, text=self.input["room"]["message"]
-        )
-        self.input["room"]["label"].config(font=("helvetica", 10))
-        self.input["room"]["label"].grid(row=0, column=0, columnspan=2)
-
-        # input
-        self.input["room"]["input"] = tk.Entry(self.popup, width=self.text_width)
-        self.input["room"]["input"].grid(row=1, column=0, columnspan=3)
-
-        b = ttk.Button(self.popup, text="Okay", command=self.create_room)
-        b.grid(row=2, column=0)
 
     def create_room(self):
-        print(f"criadno nova sala {self.input['room']['input'].get()}")
-        room = self.input["room"]["input"].get()
+        print(f"criadno nova sala {self.input['create_room']['input'].get()}")
+        room = self.input["create_room"]["input"].get()
         self.client.create_room(room)
-        self.popup.destroy()
-        self.popup = None
+        self.popup_room.destroy()
+        self.popup_room = None
 
     def start(self):
         self.create_input()
-        self.create_chat()
-        self.create_people()
+        # self.create_people()
         self.create_dropdown()
+        self.create_chat()
+
         # do loop here
 
         while True:
@@ -218,10 +325,14 @@ class Interface:
     def create_msg(self, message):
         txt = ""
         if message.dest:
-            txt += "[PRIVADO} "
+            txt += "[PRIVADO] "
+
+        if message.chat_room:
+            txt += f"[{message.chat_room}] "
 
         if message.who:
             txt += f"[{message.who}] "
+
 
         txt += f"{message.message}"
 
