@@ -1,5 +1,6 @@
 import random
 from datetime import datetime
+from pprint import pprint
 
 import Pyro4
 
@@ -47,6 +48,7 @@ class Client:
         self.add_messages_to_buffer(private_msgs)
         self.add_messages_to_buffer(global_msgs)
 
+
     def get_participants(self):
         people = set()
         msgs = self.server.scan(TupleObject(chat_room=self.room).pickled())
@@ -74,7 +76,7 @@ class Client:
         self.server.write(tuple.pickled())
 
     def _exists_in_client(self, message):
-        if message in self.messages_id:
+        if message.uuid in self.messages_id:
             return True
         return False
 

@@ -90,7 +90,7 @@ class Interface:
     def get_room(self):
         return self.input["select"]["value"].get()
 
-    def update_input_test(self, value):
+    def update_chat_text(self, value):
         self.input["chat"]["input"].delete(1.0, "end")
         self.input["chat"]["input"].insert("end", value)
 
@@ -211,7 +211,21 @@ class Interface:
         while True:
             self.master.update()
             self.client.update()
-            self.update_input_test("\n".join(self.client.messages))
+
+            txt = "\n".join([self.create_msg(msg) for msg in self.client.messages])
+            self.update_chat_text(txt)
+
+    def create_msg(self, message):
+        txt = ""
+        if message.dest:
+            txt += "[PRIVADO} "
+
+        if message.who:
+            txt += f"[{message.who}] "
+
+        txt += f"{message.message}"
+
+        return txt
 
     def select_choice(self):
         pass
