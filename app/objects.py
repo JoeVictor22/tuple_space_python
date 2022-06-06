@@ -12,7 +12,6 @@ class TupleObject:
     chat_room: str = None
     message: str = None
 
-
     @staticmethod
     def pickle_deserialize(obj):
         obj = base64.b64decode(obj["data"])
@@ -29,6 +28,10 @@ class TupleObject:
         keys = ["chat_room", "dest", "who"]
 
         for key in keys:
-            if getattr(tupla, key) and getattr(self, key) and getattr(self, key) != getattr(tupla, key):
+            if (
+                getattr(tupla, key)
+                and getattr(self, key)
+                and getattr(self, key) != getattr(tupla, key)
+            ):
                 return False
         return True

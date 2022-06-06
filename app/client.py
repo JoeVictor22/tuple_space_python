@@ -17,7 +17,7 @@ class Client:
     name = None
 
     buffer = []
-    rooms = set() # TODO unused?
+    rooms = set()  # TODO unused?
     messages = []
 
     room = None
@@ -48,7 +48,6 @@ class Client:
         self.add_messages_to_buffer(private_msgs)
         self.add_messages_to_buffer(global_msgs)
 
-
     def get_participants(self):
         people = set()
         msgs = self.server.scan(TupleObject(chat_room=self.room).pickled())
@@ -75,11 +74,15 @@ class Client:
         self.send_message(message=f"{self.name} entrou na sala", room=room)
 
     def send_message(self, message, dest=None, room=None):
-        new_tuple = TupleObject(who=self.name,message=message, dest=dest,chat_room=room)
+        new_tuple = TupleObject(
+            who=self.name, message=message, dest=dest, chat_room=room
+        )
         self._send_to_server(new_tuple)
 
     def create_room(self, room):
-        new_tuple = TupleObject(message="Criando nova sala", who=self.name, chat_room=room)
+        new_tuple = TupleObject(
+            message="Criando nova sala", who=self.name, chat_room=room
+        )
         self._send_to_server(new_tuple)
 
     def _send_to_server(self, tuple):

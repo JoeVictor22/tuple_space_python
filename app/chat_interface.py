@@ -64,20 +64,19 @@ class Interface:
             "input": None,
         },
         "private_msg": {
-                           "value": tk.StringVar(),
-                           "message": "Mensagem privada",
-                           "label": None,
-                           "button": None,
-                           "input": None,
-                       },
-                       "private_msg_txt": {
-        "value": tk.StringVar(),
-        "message": "Mensagem privada",
-        "label": None,
-        "button": None,
-        "input": None,
-    },
-
+            "value": tk.StringVar(),
+            "message": "Mensagem privada",
+            "label": None,
+            "button": None,
+            "input": None,
+        },
+        "private_msg_txt": {
+            "value": tk.StringVar(),
+            "message": "Mensagem privada",
+            "label": None,
+            "button": None,
+            "input": None,
+        },
     }
     popup_room = None
     popup_people = None
@@ -97,9 +96,9 @@ class Interface:
 
     text_width = 50
     chatrooms = []
-    private = None # private target
+    private = None  # private target
 
-    client = None # client object
+    client = None  # client object
 
     def __init__(self, name):
         self.client = Client(name=name)
@@ -115,7 +114,9 @@ class Interface:
         input_value = self.input["input"]["input"].get()
         print(f"enviando: {input_value} - {self.get_room()}")
         if self.private:
-            self.client.send_message(input_value, room=self.get_room(), dest=self.private)
+            self.client.send_message(
+                input_value, room=self.get_room(), dest=self.private
+            )
         else:
             self.client.send_message(input_value, room=self.get_room())
 
@@ -139,15 +140,11 @@ class Interface:
 
     def create_chat(self):
         # label
-        room_label = tk.Label(
-            self.master, text="SALA ATUAL: "
-        )
+        room_label = tk.Label(self.master, text="SALA ATUAL: ")
         room_label.config(font=("helvetica", 10))
         room_label.grid(row=self.row, column=0, columnspan=1)
 
-        room_label = tk.Label(
-            self.master, textvariable=self.input["select"]["value"]
-        )
+        room_label = tk.Label(self.master, textvariable=self.input["select"]["value"])
         room_label.config(font=("helvetica", 10))
         room_label.grid(row=self.row, column=1, columnspan=2)
 
@@ -200,7 +197,10 @@ class Interface:
 
         self.input["select_people"]["value"].set("nenhuma")
         self.input["select_people"]["input"] = tk.OptionMenu(
-            self.master, self.input["select_people"]["value"], "nenhuma", *self.client.get_participants()
+            self.master,
+            self.input["select_people"]["value"],
+            "nenhuma",
+            *self.client.get_participants(),
         )
         self.input["select_people"]["input"].grid(row=self.row, column=1, columnspan=1)
         self.row += 1
@@ -216,7 +216,6 @@ class Interface:
         )
         self.input["private_msg"]["button"].grid(row=self.row, column=2, columnspan=1)
         self.row += 1
-
 
     def private_msg_popup(self):
 
@@ -235,7 +234,10 @@ class Interface:
         # select participante
         self.input["private_msg"]["value"].set("nenhuma")
         self.input["private_msg"]["input"] = tk.OptionMenu(
-            self.popup_people, self.input["private_msg"]["value"], "nenhuma", *self.client.get_participants()
+            self.popup_people,
+            self.input["private_msg"]["value"],
+            "nenhuma",
+            *self.client.get_participants(),
         )
         self.input["private_msg"]["input"].grid(row=self.row, column=1, columnspan=1)
         self.row += 1
@@ -247,13 +249,15 @@ class Interface:
         self.input["private_msg_txt"]["label"].grid(row=0, column=0, columnspan=2)
 
         # input
-        self.input["private_msg_txt"]["input"] = tk.Entry(self.popup_people, width=self.text_width)
+        self.input["private_msg_txt"]["input"] = tk.Entry(
+            self.popup_people, width=self.text_width
+        )
         self.input["private_msg_txt"]["input"].grid(row=1, column=0, columnspan=3)
 
-
-        b = ttk.Button(self.popup_people, text="Enviar", command=self.send_private_message())
+        b = ttk.Button(
+            self.popup_people, text="Enviar", command=self.send_private_message()
+        )
         b.grid(row=2, column=0)
-
 
     def send_private_message(self):
         self.private = self.input["private_msg"]["value"].get()
@@ -275,12 +279,13 @@ class Interface:
         self.input["create_room"]["label"].grid(row=0, column=0, columnspan=2)
 
         # input
-        self.input["create_room"]["input"] = tk.Entry(self.popup_room, width=self.text_width)
+        self.input["create_room"]["input"] = tk.Entry(
+            self.popup_room, width=self.text_width
+        )
         self.input["create_room"]["input"].grid(row=1, column=0, columnspan=3)
 
         b = ttk.Button(self.popup_room, text="Criar", command=self.create_room)
         b.grid(row=2, column=0)
-
 
     def update_chatrooms(self):
         self.chatrooms = list(self.client.get_rooms())
@@ -298,7 +303,6 @@ class Interface:
             menu.add_command(
                 label=string, command=lambda value=string: variable.set(value)
             )
-
 
     def create_room(self):
         print(f"criadno nova sala {self.input['create_room']['input'].get()}")
@@ -332,7 +336,6 @@ class Interface:
 
         if message.who:
             txt += f"[{message.who}] "
-
 
         txt += f"{message.message}"
 
