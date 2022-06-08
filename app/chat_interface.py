@@ -364,13 +364,13 @@ class Interface:
     def create_msg(self, message):
         txt = ""
         if message.dest:
-            txt += "[PRIVADO] "
+            txt += f"[PRIVATE] [to/{message.dest}] "
 
         if message.chat_room:
-            txt += f"[{message.chat_room}] "
+            txt += f"[room/{message.chat_room}] "
 
         if message.who:
-            txt += f"[{message.who}] "
+            txt += f"[from/{message.who}] "
 
         txt += f"{message.message}"
 

@@ -49,8 +49,8 @@ class Client:
             # global_msgs = self.server.scan(TupleObject().pickled())
             self.add_global_messages_to_buffer(msgs_on_server)
             # self.add_messages_to_buffer(private_msgs)
-            msgs = map(TupleObject.pickle_deserialize, msgs_on_server)
-            pprint(list(msgs))
+            # msgs = map(TupleObject.pickle_deserialize, msgs_on_server)
+            # pprint(list(msgs))
 
             # self.add_messages_to_buffer(global_msgs)
 
