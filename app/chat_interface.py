@@ -264,7 +264,7 @@ class Interface:
 
     def send_private_message(self):
         destino = self.input["private_msg"]["value"].get()
-        msg = self.input["private_msg"]["value"].get()
+        msg = self.input["private_msg_txt"]["input"].get()
         self.private = None
 
         print(f"destino:{destino} - msg:{msg}")

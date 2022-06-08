@@ -42,12 +42,16 @@ class Client:
             msgs_on_server = self.server.scan(
                 TupleObject(chat_room=self.room).pickled()
             )
-            private_msgs = self.server.scan(
-                TupleObject(chat_room=self.room, dest=self.name).pickled()
-            )
+            # private_msgs = self.server.scan(
+            #     TupleObject(chat_room=self.room, dest=self.name).pickled()
+            # )
+
             # global_msgs = self.server.scan(TupleObject().pickled())
-            self.add_messages_to_buffer(msgs_on_server)
-            self.add_messages_to_buffer(private_msgs)
+            self.add_global_messages_to_buffer(msgs_on_server)
+            # self.add_messages_to_buffer(private_msgs)
+            msgs = map(TupleObject.pickle_deserialize, msgs_on_server)
+            pprint(list(msgs))
+
             # self.add_messages_to_buffer(global_msgs)
 
     def get_participants(self):
@@ -59,7 +63,8 @@ class Client:
 
         for msg in msgs:
             msg = TupleObject.pickle_deserialize(msg)
-            people.add(msg.who)
+            if msg.who:
+                people.add(msg.who)
 
         return people
 
@@ -85,13 +90,13 @@ class Client:
         return rooms
 
     def change_room(self, room):
-        if self.name in self.get_participants_from_room(room):
-            msg = TupleObject(
-                message=f"[sistema] Já existe um usuário com o nome {self.name} nesta sala"
-            )
-            msg.uuid = uuid.uuid4()
-            self._add_new_message(msg)
-            return False
+        # if self.name in self.get_participants_from_room(room):
+        #     msg = TupleObject(
+        #         message=f"[sistema] Já existe um usuário com o nome {self.name} nesta sala"
+        #     )
+        #     msg.uuid = uuid.uuid4()
+        #     self._add_new_message(msg)
+        #     return False
 
         if room in self.get_rooms():
             self.room = room
@@ -126,10 +131,30 @@ class Client:
 
         return message
 
+    def _add_new_global_message(self, message):
+        if not message.uuid:
+            return
+
+        if message.dest and message.dest != self.name and message.who != self.name:
+            return
+
+        self.messages.append(message)
+        self.messages_id.append(message.uuid)
+
+        return message
+
     def add_messages_to_buffer(self, messages):
         msgs = map(TupleObject.pickle_deserialize, messages)
         added_msgs = [
             self._add_new_message(msg)
+            for msg in msgs
+            if not self._exists_in_client(msg)
+        ]
+
+    def add_global_messages_to_buffer(self, messages):
+        msgs = map(TupleObject.pickle_deserialize, messages)
+        added_msgs = [
+            self._add_new_global_message(msg)
             for msg in msgs
             if not self._exists_in_client(msg)
         ]
